@@ -1,21 +1,36 @@
 //******************************************************//
 //*****************HELIUM MINER WATCHDOG*****************//
-//*************************v1.3*************************//
+//*************************v2.0*************************//
 //***************CREATED BY : FLEECEABLE****************//
 //******************************************************//
 //**********************CHANGELOG***********************//
 //v1.1 - |30.08.21| - When problem with UI and next check everything is OK (also when in sync) notify user. 
 //v1.2 - |31.08.21| - Updated error handling when miner IP is not responding
 //v1.3 - |02.09.21| - FW version check bug fix. When new firmware, program continuously send notification.
+//v2.0 - |07.09.21| - Added hotspot activity notification system. If any of miners earned rewards, you will be notified in telegram.
 
 
-const miner_ip_address = '192.168.1.229'; 						//Miner IP address
+//************TELEGRAM SETTINGS************
 const token = ''; 												//Telegram bot token
 const chatId = '' 												//Chat or group id
-const block_height_back = 10; 									//How many blocks can miner be back from blockchain
-const check_time = 3; 											//Cyclical check time in minutes
 
-//************DO NOT EDIT BELOW THIS LINE************
+//************MINER LOCAL NETWORK SETTINGS************
+const enable_miner_check_system = true;										//Enable or disable miner local diagnostic check. 
+const miner_ip_address = '192.168.1.229'; 									//Miner IP address
+const block_height_back = 10; 											//How many blocks can miner be back from blockchain
+const miner_check_time = 3; 											//Cyclical check time in minutes
+
+//************MINERS REWARD NOTIFICATION SETTINGS************
+const blockchain_check_time = 1; 										//Default 1 minute.
+const enable_notification_system = true;									//Enable or disable miner(s) reward notifications
+//const miner_address = ['144tda48JYBcxiVWf59QVG6eBf87LC'];							//format when you want to check only one miner
+const miner_address = ['144tda48JYBcxiVWf59QVG6eBf87LC',
+			'112Zu2reZjgMfTtsMCBRmEG6xvDBBTUPEgZky9'];						//Miner Blockchain addresses
+const miner_nickname = ["[Home] ",
+			"[Office] "]; 										//Miner nicknames. This name is included in telegram notification					
+
+
+//************!!!!!!!!!!!!!DO NOT EDIT BELOW THIS LINE!!!!!!!!!!!!************
 
 const http = require('http');
 const https = require('https');
@@ -23,8 +38,25 @@ var block_height_error;
 var connecting_error;
 var FW_version = '';
 
-sendMessage = 'Helium miner watchdog has been activated...'
+let helpvar = ['', ''];
+if (enable_miner_check_system == true) {
+	sendMessage = 'Helium miner watchdog has been ACTIVATED...'
+	console.log(sendMessage);
+}
+else {
+	sendMessage = 'Helium miner watchdog has been DISABLED...'
+	console.log(sendMessage);
+}
+if (enable_notification_system == true) {
+	sendMessage2 = 'Miners activity notification has been ACTIVATED...' 
+	console.log(sendMessage2);
+}	
+else {
+	sendMessage2 = 'Miners activity notification is DISABLED' 
+	console.log(sendMessage2);
+}
 https.get('https://api.telegram.org/bot'+ token + '/sendMessage?chat_id=' + chatId + '&text='+ sendMessage);
+https.get('https://api.telegram.org/bot'+ token + '/sendMessage?chat_id=' + chatId + '&text='+ sendMessage2);
 
 setInterval(function(){		
 	let url = "http://" + miner_ip_address + "/?json=true";
@@ -99,5 +131,50 @@ setInterval(function(){
 		console.error(error.message);
 		});
 	//console.log('Checking...');
-},check_time*60*1000);//x minutes delay before check again
+},miner_check_time*60*1000);//x minutes delay before check again
 
+
+if (enable_notification_system == true) {
+		
+	setInterval(function(){	
+		console.log('Checking blockchain...');
+		//sendMessage = 'Helium miner watchdog has been activated...'
+		for (let i = 0; i < miner_address.length; i++){
+			
+			let url = 'https://api.helium.io/v1/hotspots/' + miner_address[i] + '/activity?filter_types=';
+			https.get(url,(res) => {
+				let body = "";
+				res.on("data", (chunk) => {
+					body += chunk;
+				});
+				
+				res.on("end", () => {
+					//console.log(miner_nickname[i]);
+					try {
+						let json = JSON.parse(body);
+						//console.log(json);
+						//console.log(json.data.length);
+						if (json.data.length >= 1) {
+							if (json.data[0].type == 'rewards_v2') {
+								if (helpvar[i] != json.data[0].hash) {
+									helpvar[i] = json.data[0].hash;
+									console.log(miner_nickname[i] + 'Received Mining Rewards');
+									sendMessage2 = miner_nickname[i] + 'Received Mining Rewards';
+									https.get('https://api.telegram.org/bot'+ token + '/sendMessage?chat_id=' + chatId + '&text='+ sendMessage2);
+								}	
+							}
+						}
+					}
+					catch (error) {
+						console.error(error.message);
+					};
+				});
+			
+			}).on("error", (error) => {
+				console.error(error.message);
+				});
+
+		}
+
+	},blockchain_check_time*60*1000);//x minutes delay before check again
+};
