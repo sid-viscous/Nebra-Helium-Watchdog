@@ -46,3 +46,16 @@ After that you will see pm2 asking to manually run a command, copy and run that.
   <b>pm2 save </b><i>--saves that process and executes that app.js process when startup.</i><br><br>
 If you want to stop application then use:<br>
   <b>pm2 stop all </b><i>--stops all applications (we have only one so you can use that command)</i>
+  
+  <br><br><h1> v2.0</h1>
+  Added reward notification part. Change these inputs only: <br>
+  * <b>const blockchain_check_time = 1;</b> - 											<i>	Default 1 minute.</i><br>
+* <b>const enable_notification_system = true;	</b> -								<i>	Enable or disable miner(s) reward notifications. If you want to disable, type false</i><br>
+* <b>const miner_address = ['11FCr9tda48JYBcxiVWf59QVG6eBf87LCZJHatYVj7d7J9QQc95',
+						'112Zu2reZjgMfTtsMCBRmEG6xvDBBTUPEgZkyjZmJt3TgYKSEqP9'];</b> - <i>Miner Blockchain addresses. You can find these on helium explorer. If you want notifications from only one miner then structure must be like this ['ADDRESS'];</i> <br>
+* <b>const miner_nickname = ["[Voidu] ",
+						"[Kalda] "]; 	</b> -										<i>Miner nicknames. This name is included in telegram notification</i>	<br> <br>
+  
+  You will get these type of notifications: <br>
+  ![image](https://user-images.githubusercontent.com/90242002/132405957-a52299b8-a9ba-43c2-918d-372807eb1d9c.png)
+
