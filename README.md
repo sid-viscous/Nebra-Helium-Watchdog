@@ -57,5 +57,7 @@ If you want to stop application then use:<br>
 						"[Kalda] "]; 	</b> -										<i>Miner nicknames. This name is included in telegram notification</i>	<br> <br>
   
   You will get these type of notifications: <br>
-  ![image](https://user-images.githubusercontent.com/90242002/132405957-a52299b8-a9ba-43c2-918d-372807eb1d9c.png)
+
+![image](https://user-images.githubusercontent.com/90242002/132411776-8879d123-9e35-4c48-ac70-2be1c85c02c8.png)
+
 
