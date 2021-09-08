@@ -1,33 +1,33 @@
 //******************************************************//
 //*****************HELIUM MINER WATCHDOG*****************//
-//*************************v2.0*************************//
+//*************************v2.1*************************//
 //***************CREATED BY : FLEECEABLE****************//
 //******************************************************//
 //**********************CHANGELOG***********************//
 //v1.1 - |30.08.21| - When problem with UI and next check everything is OK (also when in sync) notify user. 
 //v1.2 - |31.08.21| - Updated error handling when miner IP is not responding
 //v1.3 - |02.09.21| - FW version check bug fix. When new firmware, program continuously send notification.
-//v2.0 - |07.09.21| - Added hotspot activity notification system. If any of miners earned rewards, you will be notified in telegram.
+//v2.0 - |07.09.21| - Added hotspot activity notification
+//v2.1 - |08.09.21| - Bug fix. If received one reward for two witness then sum reward amount
 
 
 //************TELEGRAM SETTINGS************
-const token = ''; 												//Telegram bot token
-const chatId = '' 												//Chat or group id
+const token = '1978020809:AAHrDPWRSPEwgTnGvguCG6UYuizuPGlLsm4'; 				//Telegram bot token
+const chatId = '-508854919' 													//Chat or group id
 
 //************MINER LOCAL NETWORK SETTINGS************
-const enable_miner_check_system = true;										//Enable or disable miner local diagnostic check. 
-const miner_ip_address = '192.168.1.229'; 									//Miner IP address
-const block_height_back = 10; 											//How many blocks can miner be back from blockchain
-const miner_check_time = 3; 											//Cyclical check time in minutes
+const enable_miner_check_system = true;											//Enable or disable miner local diagnostic check. 
+const miner_ip_address = '192.168.1.229'; 										//Miner IP address
+const block_height_back = 10; 													//How many blocks can miner be back from blockchain
+const miner_check_time = 3; 													//Cyclical check time in minutes
 
 //************MINERS REWARD NOTIFICATION SETTINGS************
-const blockchain_check_time = 1; 										//Default 1 minute.
-const enable_notification_system = true;									//Enable or disable miner(s) reward notifications
-//const miner_address = ['144tda48JYBcxiVWf59QVG6eBf87LC'];							//format when you want to check only one miner
-const miner_address = ['144tda48JYBcxiVWf59QVG6eBf87LC',
-			'112Zu2reZjgMfTtsMCBRmEG6xvDBBTUPEgZky9'];						//Miner Blockchain addresses
-const miner_nickname = ["[Home] ",
-			"[Office] "]; 										//Miner nicknames. This name is included in telegram notification					
+const blockchain_check_time = 1; 												//Default 1 minute.
+const enable_notification_system = true;										//Enable or disable miner(s) reward notifications
+const miner_address = ['11FCr9tda48JYBcxiVWf59QVG6eBf87LCZJHatYVj7d7J9QQc95',
+						'112Zu2reZjgMfTtsMCBRmEG6xvDBBTUPEgZkyjZmJt3TgYKSEqP9'];//Miner Blockchain addresses
+const miner_nickname = ["[Voidu] ",
+						"[Kalda] "]; 											//Miner nicknames. This name is included in telegram notification					
 
 
 //************!!!!!!!!!!!!!DO NOT EDIT BELOW THIS LINE!!!!!!!!!!!!************
@@ -156,10 +156,16 @@ if (enable_notification_system == true) {
 						//console.log(json.data.length);
 						if (json.data.length >= 1) {
 							if (json.data[0].type == 'rewards_v2') {
+								let reward_amount = 0;
 								if (helpvar[i] != json.data[0].hash) {
+									console.log(json.data[0].rewards.length);
+									for (ie = 0; ie < json.data[0].rewards.length; ie++){
+										reward_amount = reward_amount + json.data[0].rewards[ie].amount;
+									}
+										
 									helpvar[i] = json.data[0].hash;
-									console.log(miner_nickname[i] + 'Received Mining Rewards: ' + json.data[0].rewards[0].amount/100000000 + ' HNT' );
-									sendMessage2 = miner_nickname[i] + 'Received Mining Rewards: ' + json.data[0].rewards[0].amount/100000000 + ' HNT' ;
+									console.log(miner_nickname[i] + 'Received Mining Rewards: ' + reward_amount/100000000 + ' HNT' );
+									sendMessage2 = miner_nickname[i] + 'Received Mining Rewards: ' + reward_amount/100000000 + ' HNT' ;
 									https.get('https://api.telegram.org/bot'+ token + '/sendMessage?chat_id=' + chatId + '&text='+ sendMessage2);
 								}	
 							}
