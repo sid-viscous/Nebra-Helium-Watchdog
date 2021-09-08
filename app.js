@@ -164,8 +164,8 @@ if (enable_notification_system == true) {
 									}
 										
 									helpvar[i] = json.data[0].hash;
-									console.log(miner_nickname[i] + 'Received Mining Rewards: ' + reward_amount/100000000 + ' HNT' );
-									sendMessage2 = miner_nickname[i] + 'Received Mining Rewards: ' + reward_amount/100000000 + ' HNT' ;
+									console.log(miner_nickname[i] + 'Received Mining Rewards: ' + (reward_amount/100000000).toFixed(3) + ' HNT' );
+									sendMessage2 = miner_nickname[i] + 'Received Mining Rewards: ' + (reward_amount/100000000).toFixed(3) + ' HNT' ;
 									https.get('https://api.telegram.org/bot'+ token + '/sendMessage?chat_id=' + chatId + '&text='+ sendMessage2);
 								}	
 							}
