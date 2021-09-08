@@ -158,11 +158,9 @@ if (enable_notification_system == true) {
 							if (json.data[0].type == 'rewards_v2') {
 								let reward_amount = 0;
 								if (helpvar[i] != json.data[0].hash) {
-									console.log(json.data[0].rewards.length);
 									for (ie = 0; ie < json.data[0].rewards.length; ie++){
 										reward_amount = reward_amount + json.data[0].rewards[ie].amount;
 									}
-										
 									helpvar[i] = json.data[0].hash;
 									console.log(miner_nickname[i] + 'Received Mining Rewards: ' + (reward_amount/100000000).toFixed(3) + ' HNT' );
 									sendMessage2 = miner_nickname[i] + 'Received Mining Rewards: ' + (reward_amount/100000000).toFixed(3) + ' HNT' ;
