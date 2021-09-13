@@ -8,7 +8,7 @@
 //v1.2 - |31.08.21| - Updated error handling when miner IP is not responding
 //v1.3 - |02.09.21| - FW version check bug fix. When new firmware, program continuously send notification.
 //v2.0 - |07.09.21| - Added hotspot activity notification
-//v2.1 - |08.09.21| - Bug fix. If received one reward for two witness then sum reward amount. You can disable miner check system.
+//v2.1 - |08.09.21| - Bug fix. If received one reward for two witness then sum reward amount
 
 
 //************TELEGRAM SETTINGS************
@@ -24,10 +24,10 @@ const miner_check_time = 3; 													//Cyclical check time in minutes
 //************MINERS REWARD NOTIFICATION SETTINGS************
 const blockchain_check_time = 1; 												//Default 1 minute.
 const enable_notification_system = true;										//Enable or disable miner(s) reward notifications
-const miner_address = ['1da48JYBcxiVWf59QVG6eBf87LHatYVj7d7J9QQc95',
-						'11reZjgMfTtsMCBRmBBTUPEgZkyjZYKSEqP9',
-						'11iv2qRSt3udD86ShCs7p6snn5r9GihNvHChX',
-						'GyepVCAxiahbYEx6RJBdkeAPPHAGAuKvr5W4qMZ'];			//Miner Blockchain addresses
+const miner_address = ['14f59QVG6eBf87LCZJHatYVj7d75',
+						'1gMfTtsMCBRmEG6xvDZkyjZmJt3TgYKSP9',
+						'12qRStTKQ3udD86snn5r9GihiPdNvHCGXMhX',
+						'1VCAxiahbYEx6RJBCgdkeAPPHAGAuK5W4qMZ'];//Miner Blockchain addresses
 const miner_nickname = ["[Voidu] ",
 						"[Kalda] ",
 						"[Valge] ",
@@ -62,9 +62,10 @@ else {
 https.get('https://api.telegram.org/bot'+ token + '/sendMessage?chat_id=' + chatId + '&text='+ sendMessage);
 https.get('https://api.telegram.org/bot'+ token + '/sendMessage?chat_id=' + chatId + '&text='+ sendMessage2);
 
-if (enable_miner_check_system == true) {
+
 
 	setInterval(function(){		
+	if (enable_miner_check_system == true) {
 		let url = "http://" + miner_ip_address + "/?json=true";
 
 		http.get(url,(res) => {
@@ -136,13 +137,15 @@ if (enable_miner_check_system == true) {
 		}).on("error", (error) => {
 			console.error(error.message);
 			});
+			};
 		//console.log('Checking...');
 	},miner_check_time*60*1000);//x minutes delay before check again
-};
 
-if (enable_notification_system == true) {
+
+
 		
 	setInterval(function(){	
+	if (enable_notification_system == true) {
 		console.log('Checking blockchain...');
 		//sendMessage = 'Helium miner watchdog has been activated...'
 		for (let i = 0; i < miner_address.length; i++){
@@ -184,7 +187,7 @@ if (enable_notification_system == true) {
 				console.error(error.message);
 				});
 
-		}
+		};
+		};
 
 	},blockchain_check_time*60*1000);//x minutes delay before check again
-};
