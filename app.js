@@ -24,10 +24,10 @@ const miner_check_time = 3; 													//Cyclical check time in minutes
 //************MINERS REWARD NOTIFICATION SETTINGS************
 const blockchain_check_time = 1; 												//Default 1 minute.
 const enable_notification_system = true;										//Enable or disable miner(s) reward notifications
-const miner_address = ['11FCr9tda48JYBcxiVWf59QVG6eBf87LCZJHatYVj7d7J9QQc95',
-						'112Zu2reZjgMfTtsMCBRmEG6xvDBBTUPEgZkyjZmJt3TgYKSEqP9',
-						'112KEmiv2qRStTKQ3udD86ShCs7p6snn5r9GihiPTXdNvHCGXMhX',
-						'11NGyepVCAxiahbYEx6RJBCgpZzkdkeAPPHAGAuKvr5i5W4qMZ4'];			//Miner Blockchain addresses
+const miner_address = ['1da48JYBcxiVWf59QVG6eBf87LHatYVj7d7J9QQc95',
+						'11reZjgMfTtsMCBRmBBTUPEgZkyjZYKSEqP9',
+						'11iv2qRSt3udD86ShCs7p6snn5r9GihNvHChX',
+						'GyepVCAxiahbYEx6RJBdkeAPPHAGAuKvr5W4qMZ'];			//Miner Blockchain addresses
 const miner_nickname = ["[Voidu] ",
 						"[Kalda] ",
 						"[Valge] ",
