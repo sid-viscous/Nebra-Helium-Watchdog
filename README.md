@@ -58,4 +58,15 @@ If you want to stop application then use:<br>
   
   You will get these type of notifications: <br>
   ![image](https://user-images.githubusercontent.com/90242002/132405957-a52299b8-a9ba-43c2-918d-372807eb1d9c.png)
+	
+  <br><br><h1> v3.0</h1>
+  Now it is possible to request miner status (blockchain height, FW version and when info was last updated).<br><br>
+	You need to install <b>node-telegram-bot-api</b> with this command: <b>npm i node-telegram-bot-api</b>
+	<br>![image](https://user-images.githubusercontent.com/90242002/133514600-010ae186-e9d5-435d-9ab3-d1e0ae18ee46.png)<br><br>
+	
+	In telegram type "/status" and bot will send you miner information...<br>
+	![image](https://user-images.githubusercontent.com/90242002/133514806-3749c6e5-c996-45c4-af06-5d7c42769558.png)
 
+	
+
+	
