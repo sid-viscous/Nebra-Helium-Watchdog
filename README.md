@@ -21,6 +21,16 @@ https://youtu.be/XoryoE9V88E?t=104 <br>
 Create a new group and add bot to your group.
 Take a group id from browser:<br>
 ![image](https://user-images.githubusercontent.com/90242002/132314917-2bcb191c-98be-4aa0-91a6-1d0933d51fd9.png)<br>
+
+If you cannot find group_id in the link. Follow these steps:
+1.Add your API token to the following url and navigate with browser.
+https://api.telegram.org/bot<YourBOTToken>/getUpdates
+When you edit, it will look like this as an example https://api.telegram.org/bot123456789:jbd78sadvbdy63d37gda37bd8/getUpdates
+2.Expected response: 
+{"update_id":8393,"message":{"message_id":3,"from":{"id":7474,"first_name":"AAA"},"chat":{"id":<group_ID>,"title":""},"date":25497,"new_chat_participant":{"id":71,"first_name":"NAME","username":"YOUR_BOT_NAME"}}}
+If you get {"ok":true,"result":[]} as a response, remove the bot from the group and add again. It will be fixed. 
+3.Group chat_id written after chat word "chat":{"id":-1001234567891,"title"
+
 Test if bot is working with this command:<br><br>
 <i><b>https://api.telegram.org/bot<BOT_TOKEN_HERE>/sendMessage?chat_id=<CHAT_ID_HERE>&text=Testing_bot</b></i><br><br>
 Change these values <BOT_TOKEN_HERE> and <CHAT_ID_HERE> in link and paste it in your browser.
