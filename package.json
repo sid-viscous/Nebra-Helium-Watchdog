@@ -1,0 +1,19 @@
+{
+  "name": "Nebra-Helium-Watchdog",
+  "version": "4.0",
+  "description": "Monitors Nebra status, with Telegram bot integration.",
+  "author": "Fleecable",
+  "contributors": [
+    {
+      "name": "Sid Viscous",
+      "url": "https://github.com/sid-viscous"
+    }
+  ],
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "node-telegram-bot-api": "^0.54.0"
+  }
+}
