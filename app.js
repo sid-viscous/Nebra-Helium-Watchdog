@@ -59,9 +59,9 @@ const AccountAddress = '123435hNSG245644q54654s8MvYcAeSxEE';			//Public account 
 
 //************TIME SETTINGS************
 
-const block_height_back = 10; 						//How many blocks can miner be back from blockchain to send notification [Default:10]
-const miner_check_time = 5; 							//Cyclical miner check time in minutes [Default: 5]
-const RewardCheckTime = 3; 							//Reward check time in minutes [Default: 3]
+const block_height_back = 10; 													//How many blocks can miner be back from blockchain [Default:10]
+const miner_check_time = 5; 													//Cyclical check time in minutes [Default: 5]
+const RewardCheckTime = 3; 														//Reward check time in minutes [Default: 3]
 
 
 //************!!!!!!!!!!!!!DO NOT EDIT BELOW THIS LINE!!!!!!!!!!!!************
@@ -250,15 +250,14 @@ setInterval(function(){
 function checkminer(){
 	gettime();
 	console.log("[" + time + "] - " + 'Checking miner status...');
-	for (let i = 0; i < arrMiners.length; i++){
-		
+	for (let i = 0; i < arrMiners.length; i++){		
 		if (arrMiners[i].MinerWatchdog == 'true' && arrMiners[i].MinerLocalIP !='') {
 			let url = "http://" + arrMiners[i].MinerLocalIP + "/?json=true";
-			http.get(url,(res) => {
+			let chk = http.get(url,(res) => {
 				let body = "";
 				if (res.statusCode != 200) {
 					if (connecting_error[i] != true) {
-						console.log("[" + time + "] - " + arrMiners[i].MinerNickname + ' There is problem to load local UI. Reboot your miner...');
+						console.log("[" + time + "] - " + arrMiners[i].MinerNickname + ' There is problem to load local UI. Please check your miner...');
 						sendMessage = arrMiners[i].MinerNickname + ' There is problem to load local UI. Reboot your miner...';
 						https.get('https://api.telegram.org/bot'+ token + '/sendMessage?chat_id=' + chatId + '&text='+ sendMessage);
 						connecting_error[i]=true;
@@ -278,7 +277,7 @@ function checkminer(){
 				});
 
 				res.on("end", () => {
-					try {
+
 						let json = JSON.parse(body);
 						if (helpcallcheck ==1){
 							sendMessage = arrMiners[i].MinerNickname + '%0aHeight Status: ' + json.MH + '/' + json.BCH + '%0aFW version: ' + json.FW + '%0aMiner Relayed: ' + json.MR + '%0aLast updated: ' + json.last_updated;
@@ -317,15 +316,19 @@ function checkminer(){
 								https.get('https://api.telegram.org/bot'+ token + '/sendMessage?chat_id=' + chatId + '&text='+ sendMessage);
 							}
 						}
-					}
-					catch (error) {
-						console.log("[" + time + "] - " + 'Nebra API connection error. Will try again later...');
-					};
+				});
+
 				}).on("error", (error) => {
 					console.log("[" + time + "] - " + 'Nebra API connection error. Will try again later...');
+					if (connecting_error[i] != true) {
+						//console.log("[" + time + "] - " + arrMiners[i].MinerNickname + ' There is problem to load local UI. Reboot your miner...');
+						sendMessage = arrMiners[i].MinerNickname + ' There is problem to load local UI. Please check your miner...';
+						https.get('https://api.telegram.org/bot'+ token + '/sendMessage?chat_id=' + chatId + '&text='+ sendMessage);
+						connecting_error[i]=true;
+					}
 				});
-			});
+			};
 		}
-	}
+	
 	helpcallcheck = 0;
 }
