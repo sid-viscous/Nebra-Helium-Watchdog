@@ -1,6 +1,6 @@
 //******************************************************//
 //*****************HELIUM MINER WATCHDOG*****************//
-//*************************v3.1*************************//
+//*************************v3.2*************************//
 //***************CREATED BY : FLEECEABLE****************//
 //******************************************************//
 //**********************CHANGELOG***********************//
@@ -11,6 +11,7 @@
 //v2.1 - |08.09.21| - Bug fix. If received one reward for two witness then sum reward amount
 //v3.0 - |16.09.21| - Added "/status" telegram command to get information about your miner. !!!npm i node-telegram-bot-api must be installed!!!
 //v3.1 - |23.09.21| - Added "/help";"/info";"/1";"/7";"/14";"/30"  telegram commands to get information about your account earnings. Also "/status" will show now a little more information
+//v3.2 - |25.09.21| - Now you can check more than one account 1,7,14,30 day rewards. The rewards are determined as the sum of account rewards.
 
 //************TELEGRAM SETTINGS************
 const token = '45lyr534534543gfgdgfdg'; 					//Telegram bot token
@@ -55,8 +56,16 @@ const arrMiners = [
 	}
 ];
 
-const AccountAddress = '123435hNSG245644q54654s8MvYcAeSxEE';			//Public account address. Then you can use "/1"; "/7" etc commands to check 1 day, 7 day etc earning. 
-
+const AccountAddress = [
+	{
+		'AccountNickname': '[Account 1]',							//Account name
+		'PublicAddress': '43423342EX324kfcWNJmH23424s8234234AeS3242x3yE',			//Account public address
+	},
+	{
+		'AccountNickname': '[Account 2]',
+		'PublicAddress': '6456xpR4563xP456Q15E456Dnv9TbS5464564563gf34Az',
+	}
+];
 //************TIME SETTINGS************
 
 const block_height_back = 10; 													//How many blocks can miner be back from blockchain [Default:10]
