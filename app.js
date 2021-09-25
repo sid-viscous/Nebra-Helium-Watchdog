@@ -1,6 +1,6 @@
 //******************************************************//
 //*****************HELIUM MINER WATCHDOG*****************//
-//*************************v3.1*************************//
+//*************************v3.2*************************//
 //***************CREATED BY : FLEECEABLE****************//
 //******************************************************//
 //**********************CHANGELOG***********************//
@@ -10,7 +10,8 @@
 //v2.0 - |07.09.21| - Added hotspot activity notification
 //v2.1 - |08.09.21| - Bug fix. If received one reward for two witness then sum reward amount
 //v3.0 - |16.09.21| - Added "/status" telegram command to get information about your miner. !!!npm i node-telegram-bot-api must be installed!!!
-//v3.1 - |23.09.21| - Added "/1";"/7";"/14";"/30"  telegram commands to get information about your account earnings. Also "/status" will show now a little more information
+//v3.1 - |23.09.21| - Added "/help";"/info";"/1";"/7";"/14";"/30"  telegram commands to get information about your account earnings. Also "/status" will show now a little more information
+//v3.2 - |25.09.21| - Now you can check more than one account 1,7,14,30 day rewards. The rewards are determined as the sum of account rewards.
 
 //************TELEGRAM SETTINGS************
 const token = '45lyr534534543gfgdgfdg'; 					//Telegram bot token
@@ -55,13 +56,21 @@ const arrMiners = [
 	}
 ];
 
-const AccountAddress = '123435hNSG245644q54654s8MvYcAeSxEE';			//Public account address. Then you can use "/1"; "/7" etc commands to check 1 day, 7 day etc earning. 
-
+const AccountAddress = [
+	{
+		'AccountNickname': '[Account 1]',							//Account name
+		'PublicAddress': '43423342EX324kfcWNJmH23424s8234234AeS3242x3yE',			//Account public address
+	},
+	{
+		'AccountNickname': '[Account 2]',
+		'PublicAddress': '6456xpR4563xP456Q15E456Dnv9TbS5464564563gf34Az',
+	}
+];
 //************TIME SETTINGS************
 
-const block_height_back = 10; 						//How many blocks can miner be back from blockchain to send notification [Default:10]
-const miner_check_time = 5; 							//Cyclical miner check time in minutes [Default: 5]
-const RewardCheckTime = 3; 							//Reward check time in minutes [Default: 3]
+const block_height_back = 10; 													//How many blocks can miner be back from blockchain [Default:10]
+const miner_check_time = 5; 													//Cyclical check time in minutes [Default: 5]
+const RewardCheckTime = 3; 														//Reward check time in minutes [Default: 3]
 
 
 //************!!!!!!!!!!!!!DO NOT EDIT BELOW THIS LINE!!!!!!!!!!!!************
@@ -104,27 +113,26 @@ const bot = new TelegramBot(token, {polling: true});
 	  if (msg.text == '/status') {
 		  checkminer();
 		  helpcallcheck = 1;
-		  //bot.sendMessage(chatId, 'Give me a second. I will check it out...');
 	  }
 	  else if (msg.text == '/1'){
 		rewardtime = 1;
 		getoracleprice()
-		//rewardssumcheck()
 	  }
 	  else if (msg.text == '/7'){
 		rewardtime = 7;
 		getoracleprice()
-		//rewardssumcheck()
 	  }
 	  else if (msg.text == '/14' ){
 		rewardtime = 14;
 		getoracleprice()
-		//rewardssumcheck()
 	  }
 	  else if (msg.text == '/30'){
 		rewardtime = 30;
 		getoracleprice()
-		//rewardssumcheck()
+	  }
+	  else if (msg.text == '/help' || msg.text == '/info' ){
+		bot.sendMessage(chatId, "Allowed commands are: \n/status - get miner(s) info \n/1 - get 1 day account rewards \n/7 - get 7 day account rewards \n/14 - get 14 day account rewards \n/30 - get 30 day account rewards");
+		
 	  }
 	});
 
@@ -133,7 +141,7 @@ bot.sendMessage(chatId, 'Watchdog started...');
 console.log("[" + time + "] - " + 'Watchdog started...');
 
 
-
+//Checking account rewards
 function rewardssumcheck(){
 	let url = 'https://api.helium.io/v1/accounts/' + AccountAddress + '/rewards/sum?min_time=-' + rewardtime + "%20day&bucket=day";
 	//console.log(url);
@@ -151,25 +159,24 @@ function rewardssumcheck(){
 				if (json.data) {
 					for (let i = 0; i < json.data.length; i++){
 						periodrewards = periodrewards + json.data[i].total;
-					};					
+					};
 					let sendMessage3 = rewardtime + ' DAY - Account total mining rewards : ' + (periodrewards).toFixed(3) + ' HNT' + ' (' + (oraclecurrentprice * periodrewards).toFixed(2) + '$)'
-					https.get('https://api.telegram.org/bot'+ token + '/sendMessage?chat_id=' + chatId + '&text='+ sendMessage3);
+					bot.sendMessage(chatId, sendMessage3);
 					console.log("[" + time + "] - " + rewardtime + " DAY - Account Total Mining Rewards : " + (periodrewards).toFixed(3) + ' HNT');
 				};
-			} 
+			}
 			catch (error) {
 				console.log(error);
-				console.log("[" + time + "] - " + 'Helium Explorer API connection error. Please try again later...');
+				console.log("[" + time + "] - " + arrMiners[i].MinerNickname + ' Helium Explorer API connection error. Please try again later...');
 			};
 		});
-
 	}).on("error", (error) => {
 		//console.error(error.message);
-		console.log("[" + time + "] - " + 'Helium Explorer API connection error. Please try again later...');
+		console.log("[" + time + "] - " + arrMiners[i].MinerNickname + ' Helium Explorer API connection error. Please try again later...');
 	});
 };
 
-
+//Checking HNT price
 function getoracleprice(){
 	let url = 'https://api.helium.io/v1/oracle/prices/current';
 	https.get(url,(res) => {
@@ -185,7 +192,7 @@ function getoracleprice(){
 					oraclecurrentprice =  (json.data.price/100000000);
 					rewardssumcheck()
 				};
-			} 
+			}
 			catch (error) {
 				console.log(error);
 				console.log("[" + time + "] - " + 'Helium Explorer API connection error. Please try again later...');
@@ -196,14 +203,15 @@ function getoracleprice(){
 		//console.error(error.message);
 		console.log("[" + time + "] - " + 'Helium Explorer API connection error. Please try again later...');
 	});
-	
+
 };
 
+//Call miner status check periodically
 setInterval(function(){
 	checkminer();
-},miner_check_time*60*1000);//x minutes delay before check again
+},miner_check_time*60*1000);
 
-
+//Checking miner rewards
 setInterval(function(){
 	gettime();
 	console.log("[" + time + "] - " + 'Checking rewards...');
@@ -229,45 +237,45 @@ setInterval(function(){
 									helpvar[i] = json.data[0].hash;
 									console.log("[" + time + "] - " + arrMiners[i].MinerNickname + ' Received Mining Rewards: ' + (reward_amount/100000000).toFixed(3) + ' HNT' );
 									sendMessage2 =arrMiners[i].MinerNickname + ' Received Mining Rewards: ' + (reward_amount/100000000).toFixed(3) + ' HNT' ;
-									https.get('https://api.telegram.org/bot'+ token + '/sendMessage?chat_id=' + chatId + '&text='+ sendMessage2);
+									bot.sendMessage(chatId, sendMessage2);
 								};
 							};
 						};
-					} 
+					}
 					catch (error) {
-						console.log("[" + time + "] - " + 'Helium Explorer API connection error. Will try again later...');
+						console.log("[" + time + "] - " + arrMiners[i].MinerNickname + ' Helium Explorer API connection error. Will try again later...');
 					};
 				});
 
 			}).on("error", (error) => {
 				//console.error(error.message);
-				console.log("[" + time + "] - " + 'Helium Explorer API connection error. Will try again later...');
+				console.log("[" + time + "] - " + arrMiners[i].MinerNickname + ' Helium Explorer API connection error. Will try again later...');
 			});
 		};
 	};
 },RewardCheckTime*60*1000);//x minutes delay before check again
 
+//Checking miner status
 function checkminer(){
 	gettime();
 	console.log("[" + time + "] - " + 'Checking miner status...');
 	for (let i = 0; i < arrMiners.length; i++){
-		
 		if (arrMiners[i].MinerWatchdog == 'true' && arrMiners[i].MinerLocalIP !='') {
 			let url = "http://" + arrMiners[i].MinerLocalIP + "/?json=true";
-			http.get(url,(res) => {
+			let chk = http.get(url,(res) => {
 				let body = "";
 				if (res.statusCode != 200) {
 					if (connecting_error[i] != true) {
-						console.log("[" + time + "] - " + arrMiners[i].MinerNickname + ' There is problem to load local UI. Reboot your miner...');
+						console.log("[" + time + "] - " + arrMiners[i].MinerNickname + ' There is problem to load local UI. Please check your miner...');
 						sendMessage = arrMiners[i].MinerNickname + ' There is problem to load local UI. Reboot your miner...';
-						https.get('https://api.telegram.org/bot'+ token + '/sendMessage?chat_id=' + chatId + '&text='+ sendMessage);
+						bot.sendMessage(chatId, sendMessage);
 						connecting_error[i]=true;
 					}
 					else {
 						if (connecting_error[i] != false) {
 								console.log("[" + time + "] - " + arrMiners[i].MinerNickname + ' Miner local UI is responsing...');
 								sendMessage = arrMiners[i].MinerNickname + ' Miner local UI is responsing... ';
-								https.get('https://api.telegram.org/bot'+ token + '/sendMessage?chat_id=' + chatId + '&text='+ sendMessage);
+								bot.sendMessage(chatId, sendMessage);
 								connecting_error[i]=false;
 						}
 					}
@@ -278,54 +286,56 @@ function checkminer(){
 				});
 
 				res.on("end", () => {
-					try {
-						let json = JSON.parse(body);
-						if (helpcallcheck ==1){
-							sendMessage = arrMiners[i].MinerNickname + '%0aHeight Status: ' + json.MH + '/' + json.BCH + '%0aFW version: ' + json.FW + '%0aMiner Relayed: ' + json.MR + '%0aLast updated: ' + json.last_updated;
-							https.get('https://api.telegram.org/bot'+ token + '/sendMessage?chat_id=' + chatId + '&text='+ sendMessage );
-							console.log("[" + time + "] - " + arrMiners[i].MinerNickname + ' Height Status: [' + json.MH + '/' + json.BCH + "] | " + 'FW version: [' + json.FW + "] | " +'Miner Relayed: [' + json.MR + '] | '+  'Last updated: [' + json.last_updated + ']');
-						}
-						else {
-							if (json.MH < json.BCH-block_height_back) {
-								if (block_height_error[i] != true) {
-									sendMessage = arrMiners[i].MinerNickname + '%0aMiner status: ERROR! - Your miner blockchain height is back more than ' + block_height_back + ' blocks.' + ' Height Status: ' + json.MH + '/' + json.BCH;
-									https.get('https://api.telegram.org/bot'+ token + '/sendMessage?chat_id=' + chatId + '&text='+ sendMessage);
-									console.log("[" + time + "] - " + arrMiners[i].MinerNickname + ' Miner status: ERROR! - Your miner blockchain height is back more than ' + block_height_back + ' blocks.' + ' Height Status: ' + json.MH + '/' + json.BCH);
-									block_height_error[i]=true;
-								}
-							}								
-							else {
-								if (block_height_error[i] != false) {
-									console.log("[" + time + "] - " + arrMiners[i].MinerNickname + ' Miner status: OK - Your miner is back on action.' + ' Height Status: ' + json.MH + '/' + json.BCH);
-									sendMessage = arrMiners[i].MinerNickname + '%0aMiner status: OK - Your miner is back on action.' + ' Height Status: ' + json.MH + '/' + json.BCH;
-									https.get('https://api.telegram.org/bot'+ token + '/sendMessage?chat_id=' + chatId + '&text='+ sendMessage);
-									block_height_error[i]=false;
-								}
+					let json = JSON.parse(body);
+					if (helpcallcheck ==1){
+						sendMessage = arrMiners[i].MinerNickname + '\nHeight Status: ' + json.MH + '/' + json.BCH + '\nFW version: ' + json.FW + '\nMiner Relayed: ' + json.MR + '\nLoRa Operational: ' + json.LOR + '\nBlockchain Connection : ' + json.MC + '\nLast updated: ' + json.last_updated;
+						bot.sendMessage(chatId, sendMessage);
+						console.log("[" + time + "] - " + arrMiners[i].MinerNickname + ' Height Status: [' + json.MH + '/' + json.BCH + "] | " + 'FW version: [' + json.FW + "] | " +'Miner Relayed: [' + json.MR + '] | '+ 'LoRa Operational: [' + json.LOR + '] | ' + 'Blockchain Connection [' + json.MC + '] | ' + 'Last updated: [' + json.last_updated + ']');
+					}
+					else {
+						if (json.MH < json.BCH-block_height_back) {
+							if (block_height_error[i] != true) {
+								sendMessage = arrMiners[i].MinerNickname + '\nMiner status: ERROR! - Your miner blockchain height is back '+ (json.BCH - json.MH)  + ' blocks.' + ' Height Status: ' + json.MH + '/' + json.BCH;
+								bot.sendMessage(chatId, sendMessage);
+								console.log("[" + time + "] - " + arrMiners[i].MinerNickname + ' Miner status: ERROR! - Your miner blockchain height is back more than ' + block_height_back + ' blocks.' + ' Height Status: ' + json.MH + '/' + json.BCH);
+								block_height_error[i]=true;
 							}
 						}
-						if (FW_version[i] == '') {
-							FW_version[i] = json.FW;
-							//console.log("[" + time + "] - " + arrMiners[i].MinerNickname + ' Your miner FW version is: ' + json.FW);
-							sendMessage = arrMiners[i].MinerNickname + ' Miner FW: - Your miner FW version is ' + json.FW;
-							//https.get('https://api.telegram.org/bot'+ token + '/sendMessage?chat_id=' + chatId + '&text='+ sendMessage);
-						}
 						else {
-							if (FW_version[i] != json.FW) {
-								FW_version[i] = json.FW;
-								console.log("[" + time + "] - " + arrMiners[i].MinerNickname +' Miner FW UPDATE: - Your miner FW version is updated to ' + json.FW);
-								sendMessage = arrMiners[i].MinerNickname +' Miner FW UPDATE: - Your miner FW version is updated to ' + json.FW;
-								https.get('https://api.telegram.org/bot'+ token + '/sendMessage?chat_id=' + chatId + '&text='+ sendMessage);
+							if (block_height_error[i] != false) {
+								console.log("[" + time + "] - " + arrMiners[i].MinerNickname + ' Miner status: OK - Your miner is back on action.' + ' Height Status: ' + json.MH + '/' + json.BCH);
+								sendMessage = arrMiners[i].MinerNickname + '\nMiner status: OK - Your miner is back on action.' + ' Height Status: ' + json.MH + '/' + json.BCH;
+								bot.sendMessage(chatId, sendMessage);
+								block_height_error[i]=false;
 							}
 						}
 					}
-					catch (error) {
-						console.log("[" + time + "] - " + 'Nebra API connection error. Will try again later...');
+					if (FW_version[i] == '') {
+						FW_version[i] = json.FW;
+						//console.log("[" + time + "] - " + arrMiners[i].MinerNickname + ' Your miner FW version is: ' + json.FW);
+						sendMessage = arrMiners[i].MinerNickname + ' Miner FW: - Your miner FW version is ' + json.FW;
+					}
+					else {
+						if (FW_version[i] != json.FW) {
+							FW_version[i] = json.FW;
+							console.log("[" + time + "] - " + arrMiners[i].MinerNickname +' Miner FW UPDATE: - Your miner FW version is updated to ' + json.FW);
+							sendMessage = arrMiners[i].MinerNickname +' Miner FW UPDATE: - Your miner FW version is updated to ' + json.FW;
+							//https.get('https://api.telegram.org/bot'+ token + '/sendMessage?chat_id=' + chatId + '&text='+ sendMessage);
+							bot.sendMessage(chatId, sendMessage);
+						};
 					};
-				}).on("error", (error) => {
-					console.log("[" + time + "] - " + 'Nebra API connection error. Will try again later...');
 				});
-			});
-		}
-	}
+
+				}).on("error", (error) => {
+					console.log("[" + time + "] - " + arrMiners[i].MinerNickname + ' Nebra API connection error. Will try again later...');
+					if (connecting_error[i] != true) {
+						//console.log("[" + time + "] - " + arrMiners[i].MinerNickname + ' There is problem to load local UI. Reboot your miner...');
+						sendMessage = arrMiners[i].MinerNickname + ' There is problem to load local UI. Please check your miner...';
+						bot.sendMessage(chatId, sendMessage);
+						connecting_error[i]=true;
+					};
+				});
+			};
+		};
 	helpcallcheck = 0;
-}
+};
